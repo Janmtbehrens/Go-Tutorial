@@ -1,10 +1,21 @@
 package selectTest
 
-import "testing"
+import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+)
 
 func TestRacer(t *testing.T) {
-	slow := "http://www.facebook.com"
-	fast := "http://www.quii.dev"
+	slowServer := makeDelayedServer(20 * time.Millisecond)
+	fastServer := makeDelayedServer(0 * time.Millisecond)
+
+	slow := slowServer.URL
+	fast := fastServer.URL
+
+	defer slowServer.Close()
+	defer fastServer.Close()
 
 	want := fast
 	got := Racer(slow, fast)
@@ -14,3 +25,9 @@ func TestRacer(t *testing.T) {
 	}
 }
 
+func makeDelayedServer(delay time.Duration) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(delay)
+		w.WriteHeader(http.StatusOK)
+	}))
+}
