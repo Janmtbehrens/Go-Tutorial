@@ -2,11 +2,10 @@ package kataflag
 
 import "strings"
 
-// InputType = int, string
+// InputType = int, string, stringList
 type Flag struct {
-	Identifier             string
-	ExpectedParameterCount int
-	InputType              int
+	Identifier string
+	InputType  int
 }
 
 type Schema struct {
@@ -15,9 +14,10 @@ type Schema struct {
 
 func GetSchema() Schema {
 	flags := []Flag{
-		{"d", 0, 0},     // Debug Flag
-		{"args", -1, 1}, // Any amount of string args
-		{"p", 1, 1},     // File path
+		{"d", 0},    // Debug Flag
+		{"v", 0},    // Verbose Flag
+		{"p", 1},    // File path
+		{"args", 2}, // Any amount of string args
 	}
 
 	schema := Schema{flags}
@@ -31,7 +31,7 @@ func findFlag(schema Schema, flagIdentifier string) Flag {
 			return flag
 		}
 	}
-	return Flag{"", 0, 0}
+	return Flag{"", 0}
 }
 
 func interpreteInput(flag Flag, input string) (bool, string, []string) {
@@ -50,7 +50,7 @@ func interpreteInput(flag Flag, input string) (bool, string, []string) {
 
 	content = strings.TrimSpace(content)
 
-	if flag.ExpectedParameterCount == -1 {
+	if flag.InputType == 2 {
 		// Inteprete content as a list
 		split := strings.Split(content, ",")
 		return true, content, split
@@ -63,6 +63,16 @@ func InDebugMode(schema Schema, input string) bool {
 	exists := false
 
 	flag := findFlag(schema, "d")
+
+	exists, _, _ = interpreteInput(flag, input)
+
+	return exists
+}
+
+func IsVerbose(schema Schema, input string) bool {
+	exists := false
+
+	flag := findFlag(schema, "v")
 
 	exists, _, _ = interpreteInput(flag, input)
 
