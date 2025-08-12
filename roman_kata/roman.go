@@ -33,6 +33,21 @@ func (r Roman) Successor() Roman {
 	return romanNumerals()[entry+1]
 }
 
+func reverseString(s string) string {
+	// Convert the string to a slice of runes to handle Unicode characters correctly.
+	runes := []rune(s)
+
+	// Use two pointers, 'i' starting from the beginning and 'j' from the end.
+	// Iterate until 'i' crosses 'j'.
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		// Swap the runes at positions 'i' and 'j'.
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+
+	// Convert the modified slice of runes back to a string and return it.
+	return string(runes)
+}
+
 //func (r *Roman) ToDigit() int {
 //	return 0
 //}
@@ -40,14 +55,16 @@ func (r Roman) Successor() Roman {
 func ToRoman(number int) Roman {
 	output := Roman("")
 	numberAsString := strconv.Itoa(number)
-	for i, ch := range numberAsString {
-		roman := romanNumerals()[i*2]
+	numberAsString = reverseString(numberAsString)
+	entry := 0
+	for _, ch := range numberAsString {
+		roman := romanNumerals()[entry*2]
 		num := int(ch - '0')
+		entry++
 
 		if num == 0 {
 			continue
 		}
-
 		output = romanRow(roman, num) + output
 	}
 	return output
@@ -56,7 +73,7 @@ func ToRoman(number int) Roman {
 func romanRow(r Roman, rowNum int) Roman {
 	switch rowNum {
 	case 0:
-		return Roman(r.Successor().Successor())
+		return ""
 	case 1:
 		return Roman(r)
 	case 2:
@@ -77,4 +94,47 @@ func romanRow(r Roman, rowNum int) Roman {
 		return Roman(r + r.Successor().Successor())
 	}
 	return "---"
+}
+
+func (r Roman) ToDigit() int {
+	output := 0
+
+	runeRoman := []rune(r)
+
+	for range runeRoman {
+		lastFourChars := runeRoman[len(runeRoman)-4:]
+
+		num, cut := reverseRomanRow(Roman(lastFourChars))
+		output += num
+		runeRoman = runeRoman[:len(runeRoman)-cut]
+	}
+
+	return 0
+}
+
+func reverseRomanRow(input Roman) (int, int) {
+	r := Roman("I")
+	switch input {
+	case "":
+		return 0, 0
+	case r:
+		return 1, 1
+	case r + r:
+		return 2, 2
+	case r + r + r:
+		return 3, 3
+	case r + r.Successor():
+		return 4, 2
+	case r.Successor():
+		return 5, 1
+	case r.Successor() + r:
+		return 6, 2
+	case r.Successor() + r + r:
+		return 7, 3
+	case r.Successor() + r + r + r:
+		return 8, 4
+	case r + r.Successor().Successor():
+		return 9, 2
+	}
+	return 0, 0
 }
