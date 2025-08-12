@@ -113,28 +113,43 @@ func (r Roman) ToDigit() int {
 }
 
 func reverseRomanRow(input Roman) (int, int) {
-	r := Roman("I")
+	r := Roman(input[0])
+	if r == "V" || r == "L" || r == "D" {
+		r = r.Predecessor()
+	}
+	mult := 0
+	switch r {
+	case "I":
+		mult = 1
+	case "X":
+		mult = 10
+	case "C":
+		mult = 100
+	case "M":
+		mult = 1000
+	}
+
 	switch input {
 	case "":
-		return 0, 0
+		return mult * 0, 0
 	case r:
-		return 1, 1
+		return mult * 1, 1
 	case r + r:
-		return 2, 2
+		return mult * 2, 2
 	case r + r + r:
-		return 3, 3
+		return mult * 3, 3
 	case r + r.Successor():
-		return 4, 2
+		return mult * 4, 2
 	case r.Successor():
-		return 5, 1
+		return mult * 5, 1
 	case r.Successor() + r:
-		return 6, 2
+		return mult * 6, 2
 	case r.Successor() + r + r:
-		return 7, 3
+		return mult * 7, 3
 	case r.Successor() + r + r + r:
-		return 8, 4
+		return mult * 8, 4
 	case r + r.Successor().Successor():
-		return 9, 2
+		return mult * 9, 2
 	}
 	return 0, 0
 }
