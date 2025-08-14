@@ -21,6 +21,10 @@ func (s *StubPlayerStore) GetPlayerScore(name string) int {
 	return score
 }
 
+func (s *StubPlayerStore) IncPlayerScore(name string) {
+	s.scores[name] = s.scores[name] + 1
+}
+
 func TestGETPlayers(t *testing.T) {
 	store := StubPlayerStore{
 		map[string]int{
@@ -74,11 +78,28 @@ func TestGETPlayers(t *testing.T) {
 
 func TestStoreScore(t *testing.T) {
 	store := StubPlayerStore{
-		map[string]int{},
+		map[string]int{
+			"Pepper": 20,
+		},
 	}
 
 	playerServer := PlayerServer{&store}
 
+	t.Run("Adding Score is recorded", func(t *testing.T) {
+		request := newPostScoreRequest("Pepper")
+		response := httptest.NewRecorder()
+		// Inc Score
+		playerServer.ServeHTTP(response, request)
+
+		// Check Score
+		request = newGetScoreRequest("Pepper")
+		playerServer.ServeHTTP(response, request)
+
+		got := response.Body.String()
+		want := "21"
+
+		assertResponseBody(t, got, want)
+	})
 	t.Run("Accepted status on POST", func(t *testing.T) {
 		request := newPostScoreRequest("Pepper")
 		response := httptest.NewRecorder()
