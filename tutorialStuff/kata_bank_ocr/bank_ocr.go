@@ -73,8 +73,8 @@ func interpretLetter(letter []string) string {
 			if !reflect.DeepEqual(strings.TrimSpace(letter[j]), strings.TrimSpace(knownLine[j])) {
 				same = false
 			}
+			println(strings.TrimSpace(letter[j]) + " and " + strings.TrimSpace(knownLine[j]))
 		}
-		println(same)
 		if same {
 			return strconv.Itoa(i)
 		}
