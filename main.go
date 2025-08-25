@@ -5,6 +5,6 @@ import (
 	"net/http"
 )
 func main() {
-	server := &PlayerServer{NewInMemoryPlayerStore()}
+	server := NewPlayerServer(NewInMemoryPlayerStore())
 	log.Fatal(http.ListenAndServe(":5001", server))
 }
